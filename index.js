@@ -21,7 +21,7 @@ let users = [];
 let loggedInUser = null; // Stores currently logged-in user session
 
 // Register User
-
+// http://localhost:3000/register
 app.post("/register", (req, res) => {
     const { username, password, fullName, email } = req.body;
 
@@ -50,7 +50,7 @@ app.post("/register", (req, res) => {
 });
 
 // Login User
-
+// http://localhost:3000/login
 app.post("/login", (req, res) => {
     const { username, password } = req.body;
 
@@ -79,7 +79,7 @@ app.post("/login", (req, res) => {
 });
 
 // Get User Details (Only if logged in)
-
+// http://localhost:3000/user
 app.get("/user", (req, res) => {
     if (!loggedInUser) {
         return res.status(401).json({ error: "Unauthorized. Please log in." });
@@ -93,7 +93,7 @@ app.get("/user", (req, res) => {
 });
 
 // Logout User
-
+// http://localhost:3000/logout
 app.post("/logout", (req, res) => {
     loggedInUser = null;
 
