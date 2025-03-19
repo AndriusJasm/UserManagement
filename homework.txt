@@ -7,3 +7,10 @@ Complete postman request and tests for user management app:
  
     
 2. Try and play with PostBot to automatically generate tests.
+
+AI prompt for adding integration tests to this app:
+
+Attached file of user management app, file name "index.js".
+1. Write integration tests for functions only located in index.js file.
+2. Provide best practice and file structure for this project in order to understand where to add code of integration tests.
+3. How to run integration test.

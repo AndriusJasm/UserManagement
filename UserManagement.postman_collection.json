@@ -16,45 +16,85 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"// Updated response time to 300ms\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"  pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									" \r",
 									"pm.test(\"Response status code is 201\", function () {\r",
 									"  pm.expect(pm.response.code).to.equal(201);\r",
 									"});\r",
-									"\r",
-									"// Updated response time to 300ms\r",
-									"pm.test(\"Response time is less than 300ms\", function () {\r",
-									"  pm.expect(pm.response.responseTime).to.be.below(300);\r",
+									" \r",
+									" \r",
+									"pm.test(\"Response has the required fields\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  const variableUserName = pm.collectionVariables.get(\"registerLoginUserName\");\r",
+									" \r",
+									"    console.log(\"Variable username: \" + variableUserName)\r",
+									" \r",
+									" \r",
+									"  pm.expect(responseData).to.be.an('object');\r",
+									"  pm.expect(responseData.message).to.exist.and.to.be.a('string');\r",
+									" \r",
+									"  pm.expect(responseData.user).to.exist.and.to.be.an('object');\r",
+									" \r",
+									"  pm.expect(responseData.user.username).to.exist.and.to.be.a('string')\r",
+									"    .and.to.have.lengthOf.at.least(1, \"Username should not be empty\")\r",
+									"    .to.equal(variableUserName);\r",
+									" \r",
+									"  pm.expect(responseData.user.fullName).to.exist.and.to.be.a('string')\r",
+									"    .and.to.have.lengthOf.at.least(1, \"Full name should not be empty\")\r",
+									"    .to.equal(\"Vardenis Pavardenis\");\r",
+									" \r",
+									"  pm.expect(responseData.user.email).to.exist.and.to.be.a('string')\r",
+									"    .and.to.have.lengthOf.at.least(1, \"Email should not be empty\")\r",
+									"    .to.eq(\"demo@demo.com\");\r",
+									" \r",
 									"});\r",
+									" \r",
+									"pm.test(\"Response body is in JSON format\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate a unique username  by appending a timestamp\r",
+									"const uniqueUsername = \"test_user_\" + Date.now();\r",
+									"// Generate a unique password  by appending a timestamp\r",
+									"const uniquePassword = \"psw\" + Date.now();\r",
+									" \r",
+									"pm.collectionVariables.set(\"registerLoginUserName\", uniqueUsername)\r",
+									"pm.collectionVariables.set(\"registerLoginPassword\", uniquePassword)\r",
+									" \r",
+									"// Just print in order to check if we got value of variables by name:\r",
+									"// console.log(pm.collectionVariables.get(\"registerLoginUserName\"))\r",
+									"// console.log(pm.collectionVariables.get(\"registerLoginPassword\"))\r",
+									" \r",
+									"/*\r",
+									"    GENERATE UNIQUE USERNAME, PASSWORD AND\r",
+									"    ADD INTO REQUEST BODY\r",
+									" */\r",
 									"\r",
-									"// Check for required fields for registration\r",
-									"pm.test(\"Response has the required fields for registration\", function () {\r",
-									"    let jsonData = pm.response.json();\r",
-									"\r",
-									"    pm.expect(jsonData).to.have.property(\"message\");\r",
-									"    pm.expect(jsonData.message).to.eql(\"User registered successfully\");\r",
-									"\r",
-									"    pm.expect(jsonData).to.have.property(\"user\");\r",
-									"    pm.expect(jsonData.user).to.have.property(\"username\");\r",
-									"    pm.expect(jsonData.user).to.have.property(\"fullName\");\r",
-									"    pm.expect(jsonData.user).to.have.property(\"email\");\r",
-									"});\r",
-									"\r",
-									"// Check if email is in a valid format\r",
-									"pm.test(\"Email is in a valid format\", function () {\r",
-									"    const responseData = pm.response.json();\r",
-									"    \r",
-									"    pm.expect(responseData.email).to.be.a('string');\r",
-									"    pm.expect(responseData.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/);\r",
-									"});\r",
-									"\r",
-									"// Commented out the test for CreatedAt field\r",
-									"// pm.test(\"CreatedAt field is in a valid date format\", function () {\r",
-									"//   const responseData = pm.response.json();\r",
-									"  \r",
-									"//   pm.expect(responseData).to.be.an('object');\r",
-									"//   pm.expect(responseData.createdAt).to.match(/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}Z$/, \"CreatedAt field should be in a valid date format\");\r",
-									"// });\r",
-									""
+									"// // Generate a unique username  by appending a timestamp\r",
+									"// const uniqueUsername = \"test_user_\" + Date.now();\r",
+									"// // Generate a unique password  by appending a timestamp\r",
+									"// const uniquePassword = \"psw\" + Date.now();\r",
+									" \r",
+									"// // create obj for request body\r",
+									"// let requestBody =  {\r",
+									"//     \"username\": uniqueUsername,\r",
+									"//     \"password\": uniquePassword,\r",
+									"//     \"fullName\": \"Vardenis Pavardenis\",\r",
+									"//     \"email\": \"demo@demo.com\"\r",
+									"// }\r",
+									" \r",
+									"// // add obj into request body\r",
+									"// pm.request.body.raw = JSON.stringify(requestBody)"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -69,7 +109,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"test_user_08\", \r\n    \"password\": \"12345\", \r\n    \"fullName\": \"Vardenis Pavardenis\", \r\n    \"email\": \"demo@demo.com\"\r\n}",
+							"raw": "// {\r\n//     \"username\": \"test_user_09\", \r\n//     \"password\": \"12345\", \r\n//     \"fullName\": \"Vardenis Pavardenis\", \r\n//     \"email\": \"demo@demo.com\"\r\n// }\r\n\r\n{\r\n    \"username\": \"{{registerLoginUserName}}\",\r\n    \"password\": \"{{registerLoginPassword}}\",\r\n    \"fullName\": \"Vardenis Pavardenis\",\r\n    \"email\": \"demo@demo.com\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -97,40 +137,13 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"// Updated response time test to 300ms\r",
-									"pm.test(\"Response status code is 400\", function () {\r",
-									"  pm.response.to.have.status(400);\r",
+									"pm.test(\"Status code is 400\", function () {\r",
+									"    pm.response.to.have.status(400);\r",
 									"});\r",
 									"\r",
-									"// Response time is less than 300ms\r",
-									"pm.test(\"Response time is less than 300ms\", function () {\r",
-									"  pm.expect(pm.response.responseTime).to.be.below(300);\r",
-									"});\r",
-									"\r",
-									"// Response has the required fields\r",
-									"pm.test(\"Response has the required fields\", function () {\r",
-									"    pm.expect(pm.response).to.include.headers;\r",
-									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.exist;\r",
-									"    pm.expect(pm.response.text()).to.include(\"SyntaxError: Expected double-quoted property name in JSON\");\r",
-									"});\r",
-									"\r",
-									"// Validate response body is in valid HTML format\r",
-									"pm.test(\"Validate response body is in valid HTML format\", function () {\r",
-									"    pm.expect(pm.response.text()).to.include('<!DOCTYPE html>');\r",
-									"    pm.expect(pm.response.text()).to.include('<html lang=\"en\">');\r",
-									"    pm.expect(pm.response.text()).to.include('<head>');\r",
-									"    pm.expect(pm.response.text()).to.include('<title>Error</title>');\r",
-									"    pm.expect(pm.response.text()).to.include('</head>');\r",
-									"    pm.expect(pm.response.text()).to.include('<body>');\r",
-									"    pm.expect(pm.response.text()).to.include('</body>');\r",
-									"    pm.expect(pm.response.text()).to.include('</html>');\r",
-									"});\r",
-									"\r",
-									"// Verify response contains the expected JSON syntax error message\r",
-									"pm.test(\"Verify response contains the expected JSON syntax error message\", function () {\r",
-									"    pm.expect(pm.response.text()).to.include(\"SyntaxError: Expected double-quoted property name in JSON\");\r",
-									"});\r",
-									""
+									"pm.test(\"Response body has error field\", function () {\r",
+									"    pm.response.to.have.jsonBody('error');\r",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -145,7 +158,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"test_user_06\", \r\n    \"password\": \"12345\", \r\n    \"fullName\": \"Vardenis Pavardenis\", \r\n}",
+							"raw": "{\r\n    \"username\": \"test_user_06\", \r\n    \"password\": \"12345\", \r\n    \"fullName\": \"Vardenis Pavardenis\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -386,6 +399,102 @@
 			"name": "Login",
 			"item": [
 				{
+					"name": "Create new user for login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"  pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									" \r",
+									"pm.test(\"Response status code is 201\", function () {\r",
+									"  pm.expect(pm.response.code).to.equal(201);\r",
+									"});\r",
+									" \r",
+									" \r",
+									"pm.test(\"Response has the required fields\", function () {\r",
+									"  const responseData = pm.response.json();\r",
+									"  const variableUserName = pm.collectionVariables.get(\"LoginUserName\");\r",
+									" \r",
+									"    console.log(\"Variable username: \" + variableUserName)\r",
+									" \r",
+									" \r",
+									"  pm.expect(responseData).to.be.an('object');\r",
+									"  pm.expect(responseData.message).to.exist.and.to.be.a('string');\r",
+									" \r",
+									"  pm.expect(responseData.user).to.exist.and.to.be.an('object');\r",
+									" \r",
+									"  pm.expect(responseData.user.username).to.exist.and.to.be.a('string')\r",
+									"    .and.to.have.lengthOf.at.least(1, \"Username should not be empty\")\r",
+									"    .to.equal(variableUserName);\r",
+									" \r",
+									"  pm.expect(responseData.user.fullName).to.exist.and.to.be.a('string')\r",
+									"    .and.to.have.lengthOf.at.least(1, \"Full name should not be empty\")\r",
+									"    .to.equal(\"Vardenis Pavardenis\");\r",
+									" \r",
+									"  pm.expect(responseData.user.email).to.exist.and.to.be.a('string')\r",
+									"    .and.to.have.lengthOf.at.least(1, \"Email should not be empty\")\r",
+									"    .to.eq(\"demo@demo.com\");\r",
+									" \r",
+									"});\r",
+									" \r",
+									"pm.test(\"Response body is in JSON format\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate a unique username  by appending a timestamp\r",
+									"const uniqueUsername = \"test_user_\" + Date.now();\r",
+									"// Generate a unique password  by appending a timestamp\r",
+									"const uniquePassword = \"psw\" + Date.now();\r",
+									" \r",
+									"pm.collectionVariables.set(\"loginUserName\", uniqueUsername)\r",
+									"pm.collectionVariables.set(\"loginPassword\", uniquePassword)"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "// {\r\n//     \"username\": \"test_user_09\", \r\n//     \"password\": \"12345\", \r\n//     \"fullName\": \"Vardenis Pavardenis\", \r\n//     \"email\": \"demo@demo.com\"\r\n// }\r\n\r\n{\r\n    \"username\": \"{{loginUserName}}\",\r\n    \"password\": \"{{loginPassword}}\",\r\n    \"fullName\": \"Vardenis Pavardenis\",\r\n    \"email\": \"demo@demo.com\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Login",
 					"event": [
 						{
@@ -421,6 +530,16 @@
 								"type": "text/javascript",
 								"packages": {}
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
 						}
 					],
 					"request": {
@@ -431,7 +550,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"test_user_05\", \r\n    \"password\": \"12345\"\r\n}",
+							"raw": "{\r\n    \"username\": \"{{loginUserName}}\",\r\n    \"password\": \"{{loginPassword}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -655,47 +774,48 @@
 			"name": "Get user details",
 			"item": [
 				{
-					"name": "Get details",
+					"name": "Positive user details",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"Response status code is 200\", function () {\r",
+									"const variableUserName = pm.collectionVariables.get(\"registerGetUserName\");\r",
+									"const responseData = pm.response.json();\r",
+									" \r",
+									"// Test for status code\r",
+									"pm.test(\"Status code is 200\", function () {\r",
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
-									"\r",
-									"\r",
+									" \r",
+									"// Test for response time\r",
 									"pm.test(\"Response time is less than 200ms\", function () {\r",
-									"  pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
 									"});\r",
-									"\r",
-									"\r",
-									"pm.test(\"Response has the required fields - username, fullName, and email\", function () {\r",
-									"    const responseData = pm.response.json();\r",
-									"    \r",
-									"    pm.expect(responseData).to.be.an('object');\r",
+									" \r",
+									"// Test for response body schema and properties\r",
+									"pm.test(\"Response body has the expected properties\", function () {\r",
 									"    pm.expect(responseData).to.have.property('username');\r",
+									"    pm.expect(responseData.username).to.exist.and.to.be.a('string')\r",
+									"        .and.to.have.lengthOf.at.least(1, \"Username should not be empty\")\r",
+									"        .to.equal(variableUserName);\r",
+									" \r",
 									"    pm.expect(responseData).to.have.property('fullName');\r",
+									"    pm.expect(responseData.fullName).to.exist.and.to.be.a('string')\r",
+									"        .and.to.have.lengthOf.at.least(1, \"FullName should not be empty\")\r",
+									"        .to.equal(\"Vardenis Pavardenis\");\r",
+									" \r",
 									"    pm.expect(responseData).to.have.property('email');\r",
+									"    pm.expect(responseData.email).to.exist.and.to.be.a('string')\r",
+									"        .and.to.have.lengthOf.at.least(1, \"Email should not be empty\")\r",
+									"        .to.equal(\"demo@demo.com\");\r",
 									"});\r",
-									"\r",
-									"\r",
-									"pm.test(\"Username is a non-empty string\", function () {\r",
-									"    const responseData = pm.response.json();\r",
-									"\r",
-									"    pm.expect(responseData).to.be.an('object');\r",
-									"    pm.expect(responseData.username).to.be.a('string').and.to.have.length.above(0, \"Username should not be empty\");\r",
-									"});\r",
-									"\r",
-									"\r",
-									"pm.test(\"Email is in a valid email format\", function () {\r",
-									"  const responseData = pm.response.json();\r",
-									"  \r",
-									"  pm.expect(responseData.email).to.be.a('string');\r",
-									"  pm.expect(responseData.email).to.match(/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/);\r",
-									"});\r",
-									""
+									" \r",
+									"// Test for response headers\r",
+									"pm.test(\"Content-Type header is present and has a specific value\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\");\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -709,14 +829,89 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3000/user",
+							"raw": "http://localhost:3000/user/{{loginUserName}}",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "3000",
 							"path": [
-								"user"
+								"user",
+								"{{loginUserName}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Negative non-existing user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseData = pm.response.json();\r",
+									" \r",
+									"// Test for status code\r",
+									"pm.test(\"Status code is 404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									" \r",
+									"// Test for response time\r",
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(200);\r",
+									"});\r",
+									" \r",
+									"// Test for response body schema and properties\r",
+									"pm.test(\"Response body has the expected property and value\", function () {\r",
+									"    pm.expect(responseData).to.have.property('error');\r",
+									" \r",
+									"    pm.expect(responseData.error).to.exist.and.to.be.a('string')\r",
+									"        .and.to.have.lengthOf.at.least(1, \"Username should not be empty\")\r",
+									"        .to.equal(\"User not found\");\r",
+									"});\r",
+									" \r",
+									"// Test for response headers\r",
+									"pm.test(\"Content-Type header is present and has a specific value\", function () {\r",
+									"    pm.response.to.have.header(\"Content-Type\");\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// Generate a unique non-extisting username  by appending a timestamp\r",
+									"const uniqueUsername = \"non-exiting_user_\" + Date.now();\r",
+									" \r",
+									"pm.collectionVariables.set(\"registerGetNenExitstingUserName\", uniqueUsername)\r",
+									" "
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/user/{{registerGetNenExitstingUserName}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"user",
+								"{{registerGetNenExitstingUserName}}"
 							]
 						}
 					},
@@ -790,6 +985,50 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "registerLoginUserName",
+			"value": ""
+		},
+		{
+			"key": "registerLoginPassword",
+			"value": ""
+		},
+		{
+			"key": "loginUserName",
+			"value": ""
+		},
+		{
+			"key": "loginPassword",
+			"value": ""
+		},
+		{
+			"key": "registerGetNenExitstingUserName",
+			"value": ""
 		}
 	]
 }

@@ -102,7 +102,12 @@ app.post("/logout", (req, res) => {
     res.json({ message: "Logged out successfully" });
 });
 
-// Start Server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+// Start Server only if not in test environment
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+    });
+}
+
+// Export app for testing
+module.exports = app;
